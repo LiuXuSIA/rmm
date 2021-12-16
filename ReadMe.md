@@ -11,7 +11,7 @@ the high-dimensional space where the points are approximately linearly distribut
 In the context of machine learning, by efficiently generating approximately linearly separable
 or distributed space at random, the RMM can accelerate the training process. 
 ## How RMM
-For an arbitrary set of samples $\boldsymbol X = \{\boldsymbol x_i,t_i\}_{i=1}^{L}$, where $\boldsymbol x_i \in {\boldsymbol R}^{N\times 1}$ is the feature vector <br>
+For an arbitrary set of samples $X = {x_i,t_i}_{i=1}^{L}$, where $\boldsymbol x_i \in {\boldsymbol R}^{N\times 1}$ is the feature vector <br>
 and $t_i \in {\boldsymbol R}^m$ is the target value. RMM generate a feature mapping function $\phi (\boldsymbol x_i)$ for the vector $\boldsymbol x_i$ as follows:
 $$\phi(\boldsymbol x_i)=g(\boldsymbol {Wx_i}+\boldsymbol b)=g(\boldsymbol v_i)=\boldsymbol s_i$$
 where $\boldsymbol W$ is a $M \times N$ matrix denoting a linear transformation, and $b$ is a $M \times 1$ bias vector. 
