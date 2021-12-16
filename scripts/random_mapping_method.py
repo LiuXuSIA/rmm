@@ -1,36 +1,31 @@
-'random_mapping.py'
+'random_mapping_method.py'
 
 __date__='20210514'
-__author__='liuxu'
+__author__='Xu Liu'
 __email__='liuxu1@sia.cn'
 
 import numpy as np
 import time
-from datetime import datetime
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.linear_model import LinearRegression, SGDClassifier
-from sklearn.metrics import roc_curve,roc_auc_score, precision_score, recall_score,f1_score
-from sklearn.linear_model import LogisticRegression
-import pcdProcess 
-
-import scipy.sparse as sp
 from scipy import linalg
-from scipy import optimize
-from scipy import sparse
-from scipy.special import expit
-from joblib import Parallel
 
 class random_mapping_method():
-    def __init__(self,targetDimen=100,actiFunc='sin', scaleRate=1):
+
+    '''
+    pamameters:
+    targetDimen: int, the dimension of the target features
+    actiFunc: string, the activation function, defined within the class as follows
+    scaleRate: float: the scale of the random weights 
+    '''
+    def __init__(self,targetDimen=100, actiFunc='sin', scaleRate=1):
         self.actiFunc = actiFunc
         self.targetDimen = targetDimen
         self.scaleRate = scaleRate
     
-    def feature_mapping(self,dataSet,biasEnable=True):
+    def feature_mapping(self,dataSet):
 
         initial_dim = np.size(dataSet, 1)
         self.randomWeights = (np.random.rand(initial_dim, self.targetDimen)*2-1)*self.scaleRate
-        self.randomBias = (np.random.rand(1, self.targetDimen)*2-1)*self.scaleRate if biasEnable else np.zeros([1, self.targetDimen])
+        self.randomBias = (np.random.rand(1, self.targetDimen)*2-1)*self.scaleRate
     
         def sigmoid(dataSet):
             return 1.0 / (1 + np.exp(-dataSet))
@@ -47,81 +42,92 @@ class random_mapping_method():
         randomSet = actiFun[self.actiFunc](randomSetTemp)
         return randomSet
 
+    '''
+    Compute least-squares solution of the linear regression model, and other method can also be used.
+    parameters:
+    X: Training data, array-like of shape (n_samples, n_features). In the context of rmm, it will be the generated randomSet.
+    Y: Target values, array-like of shape (n_samples,)
+    '''
     def fit(self, X, Y):
-        self.clf = LinearRegression(fit_intercept=False)
-        self.clf.fit(X, Y)
-
-        # X_offset = np.average(X, axis=0)
-        # X_offset = X_offset.astype(X.dtype, copy=False)
-        # X -= X_offset
-        # X_scale = np.ones(X.shape[1], dtype=X.dtype)
-        # Y_offset = np.average(y, axis=0)
-        # Y = Y - Y_offset
-
+        X = np.c_[X, np.ones(len(X))]  # Augment features to yield intercept
         self.coef_, self._residues, self.rank_, self.singular_ = linalg.lstsq(X, Y)
-        print(self.coef_.shape)
-        # self.coef_ = self.coef_.T
-        # if Y.ndim == 1:
-        #     self.coef_ = np.ravel(self.coef_)
-        # def _set_intercept(self, X_offset, y_offset, X_scale):
-        #     """Set the intercept_"""
-        #     if self.fit_intercept:
-        #         self.coef_ = self.coef_ / X_scale
-        #         self.intercept_ = y_offset - np.dot(X_offset, self.coef_.T)
-        #     else:
-        #         self.intercept_ = 0.0
 
+    '''
+    Predict the targets using the fitted linear model
+    parameter:
+    X2pedict: Test samples, array-like of shape (n_samples, n_features). 
+              It must be transformed by the same random mapping with the training data.
+    '''
     def predict(self, X2pedict):
-        Y_Predictd = self.clf.predict(X2pedict)
-        Y_Predictd_1 = np.matmul(X2pedict, self.coef_) 
-        return Y_Predictd, Y_Predictd_1
+        X2pedict = np.c_[X2pedict, np.ones(len(X2pedict))]
+        Y_Predictd = np.matmul(X2pedict, self.coef_) 
+        return Y_Predictd
+    
+    '''
+    Return the coefficient of determination and the mean square error of the prediction.
+    parameters:
+    X: Test samples, array-like of shape (n_samples, n_features).
+    Y: True values for X, array-like of shape (n_samples,).
+    '''
+    def score(self, X,Y):
+        Y_Predictd = self.predict(X)
+        Y_mean = np.mean(Y)
+        S_tol = np.sum((Y-Y_mean)**2)
+        S_reg = np.sum((Y_Predictd-Y)**2)
+        R2 = 1 - S_reg/S_tol
+        mse = ((Y-Y_Predictd)**2).sum() / len(Y)
+        return R2, mse
 
-    def score(self, X,Y,r2=False, mse=False):
-        Y_Predictd, Y_Predictd_1 = self.predict(X)
-        scores = []
-        if r2:
-            r2_value = self.clf.score(X,Y)
-            scores.append(r2_value)
-        if mse:
-            mse_value = ((Y-Y_Predictd)**2).sum() / len(Y)
-            mse_value_1 = ((Y-Y_Predictd_1)**2).sum() / len(Y)
-            scores.append(mse_value_1)
-        return scores[0] if len(scores)==1 else scores
+def loadData(filePath):
+    Data = []
+    fileFormat=filePath.strip().split('.')[-1]
+    fr = open(filePath)
+    initialData = fr.readlines()
+    fr.close()
+    for element in initialData:
+        lineArr = element.strip().split(',')  if fileFormat == 'csv' else element.strip().split(' ')
+        Data.append([float(x) for x in lineArr])
+    return np.array(Data)
 
-rootPath = 'E:\\PC1SIA\\Study\PHD\\Work\\Research\\paperWriting\\RAL2021\\'
-rootPath_AAAI = 'E:\\PC1SIA\\Study\\PHD\\Work\\Research\\paperWriting\\AAAI2022\\'
-elevation_planetary_large = rootPath + 'dataSet\\elevation_planetary_large.xyz'
-elevation_quarry = rootPath_AAAI + 'dataSet\\stonePit1.xyz'
-elevation_quarry_small = rootPath_AAAI + 'dataSet\\elevation_quarry_small.xyz'
+planet = 'datasets\\planet.xyz'
+quarry = 'datasets\\quarry.xyz'
+mountain = 'datasets\\mountain.xyz'
 
-Data = pcdProcess.loadData(elevation_quarry_small)
-np.random.shuffle(Data)
-L_training = int(len(Data)*(1-0.3))
-X, Y = Data[:,:-1], Data[:,-1]
-
-clf=random_mapping_method(targetDimen=900, actiFunc='sin',scaleRate=2)
-start_mapping_time = time.time()
-data_transformed = clf.feature_mapping(X)
-end_mapping_time = time.time()
-time_mapping = end_mapping_time - start_mapping_time
-
-X_training, Y_training, X_test, Y_test = data_transformed[:L_training,:], Y[:L_training], data_transformed[L_training:,:], Y[L_training:]
-start_training_time = time.time() 
-clf.fit(X_training, Y_training)
-end_training_time = time.time()
-time_training = end_training_time - start_training_time
-
-start_test_time = time.time() 
-clf.predict(X_training)
-end_test_time = time.time()
-time_test = end_test_time - start_test_time
-
-time_modeling = time_mapping + time_training
-
-start_access_time = time.time() 
-Y_predicted = clf.predict(np.r_[X_training, X_test])
-end_access_time = time.time()
-time_access = end_access_time - start_access_time
-
-mseTraining, mseTest =  clf.score(X_training,Y_training,mse=True), clf.score(X_test,Y_test,mse=True)
-print('mseTraining:%f, mseTest:%f, time_training:%f, time_test:%f' % (mseTraining, mseTest, time_training, time_test))
+# example
+if __name__ == '__main__':
+    # data loading and training number
+    Data = loadData(mountain)
+    np.random.shuffle(Data)
+    L_training = int(len(Data) * 0.7)
+    X, Y = Data[:,:-1], Data[:,-1]
+    # the targetDimens, actiFuncs, scaleRates for planet, quarry, and mountain are
+    # (500, 'sin', 4), (800, 'sin', 1), and (800, 'sin', 0.2), respectively
+    rmm = random_mapping_method(targetDimen=800, actiFunc='sin', scaleRate=0.2)
+    start_mapping_time = time.time()
+    data_transformed = rmm.feature_mapping(X)
+    end_mapping_time = time.time()
+    time_mapping = end_mapping_time - start_mapping_time
+    # training time
+    X_training, Y_training, X_test, Y_test = data_transformed[:L_training,:], Y[:L_training], data_transformed[L_training:,:], Y[L_training:]
+    start_training_time = time.time() 
+    rmm.fit(X_training, Y_training)
+    end_training_time = time.time()
+    time_training = end_training_time - start_training_time
+    # test time
+    start_test_time = time.time() 
+    rmm.predict(X_training)
+    end_test_time = time.time()
+    time_test = end_test_time - start_test_time
+    # modeling time
+    time_modeling = time_mapping + time_training
+    # access time
+    start_access_time = time.time() 
+    Y_predicted = rmm.predict(np.r_[X_training, X_test])
+    end_access_time = time.time()
+    time_access = end_access_time - start_access_time
+    # inference accuracy
+    r2_training, mseTraining = rmm.score(X_training,Y_training)
+    r2_test, mseTest = rmm.score(X_test,Y_test)
+    # key results
+    print('r2_training:%F, r2_test:%F, mseTraining:%f, mseTest:%f, time_training:%f, time_test:%f' \
+        % (r2_training, r2_test, mseTraining, mseTest, time_training, time_test))
