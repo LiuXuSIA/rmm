@@ -102,6 +102,7 @@ if __name__ == '__main__':
     X, Y = Data[:,:-1], Data[:,-1]
     # the targetDimens, actiFuncs, scaleRates for planet, quarry, and mountain are
     # (500, 'sin', 4), (800, 'sin', 1), and (800, 'sin', 0.2), respectively
+    # mapping time
     rmm = random_mapping_method(targetDimen=800, actiFunc='sin', scaleRate=0.2)
     start_mapping_time = time.time()
     data_transformed = rmm.feature_mapping(X)
