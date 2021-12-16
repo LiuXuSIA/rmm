@@ -20,7 +20,7 @@ Then, for the $\boldsymbol X$ that is not linearly distributed, we can obtain a 
 $$\boldsymbol S=\boldsymbol G(\boldsymbol{WX})=\boldsymbol G(\boldsymbol V)$$
 
 ## What's terrain modeling
-Assume that a robot has captured a data set $\boldsymbol D=\{\boldsymbol x_i, t_i\}_{i=1}^L$ by the end points of a laser ranger finder or depth cameras when moving in the environments, where $\boldsymbol x_i$ is a 2D location and $t_i$ is its elevation. Our idea for for the terrain modeling is to build a linear regression model between $\{\boldsymbol x_i\}_{i=1}^{L}$ and $\{t_i\}_{i=1}^{L}$.
+Assume that a robot has captured a data set $\boldsymbol D=\{\boldsymbol x_i, t_i\}_{i=1}^{L}$ by the end points of a laser ranger finder or depth cameras when moving in the environments, where $\boldsymbol x_i$ is a 2D location and $t_i$ is its elevation. Our idea for for the terrain modeling is to build a linear regression model between $\{\boldsymbol x_i\}_{i=1}^{L}$ and $\{t_i\}_{i=1}^{L}$.
 ## How terrain modeing with RMM
 Two points. Firlrly, RMR can be effective for regression tasks. Secondly, treat the terrain modeling as a regression problem.
 Oegression model: $$y=f(\boldsymbol x, \boldsymbol\beta)=\boldsymbol\beta^T\boldsymbol g(\boldsymbol {Wx})+b=\boldsymbol\beta^T\boldsymbol s+b=\boldsymbol\beta^{T}\boldsymbol s$$
