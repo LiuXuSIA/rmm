@@ -22,7 +22,6 @@ class random_mapping_method():
         self.scaleRate = scaleRate
     
     def feature_mapping(self,dataSet):
-
         initial_dim = np.size(dataSet, 1)
         self.randomWeights = (np.random.rand(initial_dim, self.targetDimen)*2-1)*self.scaleRate
         self.randomBias = (np.random.rand(1, self.targetDimen)*2-1)*self.scaleRate
