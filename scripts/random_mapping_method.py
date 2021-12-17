@@ -13,7 +13,7 @@ class random_mapping_method():
     '''
     pamameters:
     targetDimen: int, the dimension of the target features
-    actiFunc: string, the activation function, defined within the class as follows
+    actiFunc: string, the activation function defined within the class as follows
     scaleRate: float: the scale of the random weights 
     '''
     def __init__(self,targetDimen=100, actiFunc='sin', scaleRate=1):
@@ -26,7 +26,7 @@ class random_mapping_method():
         initial_dim = np.size(dataSet, 1)
         self.randomWeights = (np.random.rand(initial_dim, self.targetDimen)*2-1)*self.scaleRate
         self.randomBias = (np.random.rand(1, self.targetDimen)*2-1)*self.scaleRate
-    
+        #activation functions, not limited to the followings
         def sigmoid(dataSet):
             return 1.0 / (1 + np.exp(-dataSet))
         def sin(dataSet):
