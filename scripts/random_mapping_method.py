@@ -5,8 +5,8 @@ __author__='Xu Liu'
 __email__='liuxu1@sia.cn'
 
 import numpy as np
-import time
 from scipy import linalg
+import time
 
 class random_mapping_method():
 
@@ -96,14 +96,14 @@ mountain = 'datasets\\mountain.xyz'
 # example
 if __name__ == '__main__':
     # data loading and training number
-    Data = loadData(mountain)
+    Data = loadData(planet)
     np.random.shuffle(Data)
     L_training = int(len(Data) * 0.7)
     X, Y = Data[:,:-1], Data[:,-1]
     # the targetDimens, actiFuncs, scaleRates for planet, quarry, and mountain are
     # (500, 'sin', 4), (800, 'sin', 1), and (800, 'sin', 0.2), respectively
     # mapping time
-    rmm = random_mapping_method(targetDimen=800, actiFunc='sin', scaleRate=0.2)
+    rmm = random_mapping_method(targetDimen=500, actiFunc='sin', scaleRate=4)
     start_mapping_time = time.time()
     data_transformed = rmm.feature_mapping(X)
     end_mapping_time = time.time()
