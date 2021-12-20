@@ -1,5 +1,5 @@
 ## Random mapping method (RMM) for terrain modeling
-A simple demo of random mapping method for terrain modeling published in AAAI22. <br>
+A simple demo of random mapping method for terrain modeling. <br>
 __scripts__ :  A simple implementation codes for RMM with Python 3.8, numpy 1.21.2, and scipy 1.6.2 <br> 
 __datasets__ : The used datasets comprising *planet*, *quarry*, and *mountain*. <br>
 The underlying mathematical proof regarding the linear property of RMM can be found in our paper.
