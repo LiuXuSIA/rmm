@@ -1,4 +1,4 @@
-These data are only the terrain surfaces extracted by elevation filtering from the orinigal terrain data, which is part of our previous work published in ICRA2021. Refer to
+These data are only the terrain surfaces extracted by elevation filtering from the original terrain data, which is part of our previous work published in ICRA2021. Refer to
  ```
  @inproceedings{liu2021multiresolution,
   title={Multiresolution Representations for Large-Scale Terrain with Local Gaussian Process Regression},
